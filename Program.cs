@@ -16,14 +16,18 @@ builder.Services.AddDbContext<WalkDbContext>(Options => Options.UseSqlServer(bui
     .Configuration.GetConnectionString("WalksConnectioString")) );
 
 var app = builder.Build();
-
+var env= builder.Environment;
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.MapGet("/health",() => new{
+status ="Healthy",
+environment = env,
+machine = Environment.MachineName
+});
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

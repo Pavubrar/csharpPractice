@@ -64,7 +64,7 @@ namespace csharpPractice.Controllers
             //};
             return Ok(regionsDto);
         }
-        //<-------MGet single region(get region by ID)
+        //<-------Get single region(get region by ID)
 
         [HttpGet("{id:Guid}")]
         public IActionResult GetById(Guid id)
@@ -89,9 +89,31 @@ namespace csharpPractice.Controllers
 
         //<---POST to create new region
 
-        //[HttpPost]
-        //public IActionResult Create
-        //    { get; set; }
+        [HttpPost]
+        public IActionResult Create([FromBody] AddRegionRequestDto addRegionRequestDto)
+           { 
+
+            //Map or convert DTO model
+             var regionDomainModel = new Region
+             {
+                Code = addRegionRequestDto.Code,
+                Name = addRegionRequestDto.Name,
+                RegionImageUrl = addRegionRequestDto.RegionImageUrl
+             };
+             
+            //use domain model to create region
+            dbContext.Regions.Add(regionDomainModel);
+            dbContext.SaveChanges();
+            // map domain mdel back to dto
+            var regionDto = new RegionDTO
+            {
+                Id = regionDomainModel.Id,
+                RegionImageUrl = regionDomainModel.RegionImageUrl,
+                Name = regionDomainModel.Name,
+                Code = regionDomainModel.Code,
+            };
+            return CreatedAtAction(nameof(GetById), new{id = regionDomainModel.Id}, regionDto);
+            }
 
     }
 
