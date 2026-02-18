@@ -22,11 +22,11 @@ namespace csharpPractice.Controllers
 
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task <IActionResult> GetAll()
             
         {
             //<-------Mget data from database - Domain models<-------
-            var regionsDomain = dbContext.Regions.ToList();
+            var regionsDomain = await dbContext.Regions.ToListAsync();
 
 
             //<-------Map Domain Models to DTOs<-------
