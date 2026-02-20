@@ -1,36 +1,50 @@
-using csharpPractice.Data;
+﻿using csharpPractice.Data;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Services
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<WalkDbContext>(Options => Options.UseSqlServer(builder
-    .Configuration.GetConnectionString("WalksConnectioString")) );
+
+builder.Services.AddDbContext<WalkDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("WalksConnectioString"))
+);
 
 var app = builder.Build();
-var env= builder.Environment;
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+
+// IMPORTANT: Azure reverse proxy support
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto
+});
+
+// Swagger (safe for staging)
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.MapGet("/health",() => new{
-status ="Healthy",
-environment = env,
-machine = Environment.MachineName
-});
-app.UseHttpsRedirection();
+
+// ❌ Do NOT use HTTPS redirection on Azure Linux
+// Azure handles HTTPS before reaching the app
+
+app.UseRouting();
 
 app.UseAuthorization();
+
+// Health check (safe)
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    environment = app.Environment.EnvironmentName,
+    machine = Environment.MachineName
+}));
 
 app.MapControllers();
 
