@@ -69,3 +69,13 @@ steps:
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: 'drop'
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'ME-MngEnvMCAP517100-v-parvkaur-1(1)(f1c89731-86b0-4cd4-bd2d-f2347c1d62d2)'
+    appType: 'webAppLinux'
+    appName: 'csharp-devops-lab'
+    deployToSlotOrASE: true
+    resourceGroupName: 'DevOps'
+    slotName: 'stagiing-2'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    runtimeStack: 'DOTNETCORE|8.0'
