@@ -77,5 +77,5 @@ steps:
     deployToSlotOrASE: true
     resourceGroupName: 'DevOps'
     slotName: 'stagiing-2'
-    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
     runtimeStack: 'DOTNETCORE|8.0'
