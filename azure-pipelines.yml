@@ -1,0 +1,71 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+
+
+steps:
+# STEP 0: Force checkout
+- checkout: self
+  clean: true
+
+# STEP 1: DEBUG – prove where the csproj is
+- script: |
+    echo "===== DEBUG INFO ====="
+    echo "System.DefaultWorkingDirectory:"
+    echo $(System.DefaultWorkingDirectory)
+    echo ""
+    echo "PWD:"
+    pwd
+    echo ""
+    echo "List root:"
+    ls -la
+    echo ""
+    echo "Find csproj:"
+    find . -name "*.csproj"
+  displayName: 'DEBUG: locate csproj'
+  
+# Step 1: Install .NET SDK
+- task: UseDotNet@2
+  displayName: 'Install .NET SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'   # change if your project uses 6.x or 7.x
+
+# Step 2: Restore NuGet packages
+- task: DotNetCoreCLI@2
+  displayName: 'Restore packages'
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+
+# Step 3: Build project
+- task: DotNetCoreCLI@2
+  displayName: 'Build project'
+  inputs:
+    command: 'build'
+    projects: '*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+# Step 4: Publish project
+- task: DotNetCoreCLI@2
+  displayName: 'Publish project'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
+
+# Step 5: Publish artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish build artifact'
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'drop'
