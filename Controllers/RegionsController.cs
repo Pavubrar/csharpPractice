@@ -67,9 +67,9 @@ namespace csharpPractice.Controllers
         //<-------Get single region(get region by ID)
 
         [HttpGet("{id:Guid}")]
-        public IActionResult GetById(Guid id)
+        public async Task <IActionResult> GetById(Guid id)
         {
-            var regionDomain = dbContext.Regions.FirstOrDefault(x=> x.Id == id);
+            var regionDomain = await dbContext.Regions.FirstOrDefaultAsync(x=> x.Id == id);
             if (regionDomain == null)
             {
                 return BadRequest();
@@ -90,7 +90,7 @@ namespace csharpPractice.Controllers
         //<---POST to create new region
 
         [HttpPost]
-        public IActionResult Create([FromBody] AddRegionRequestDto addRegionRequestDto)
+        public async Task <IActionResult> Create([FromBody] AddRegionRequestDto addRegionRequestDto)
            { 
 
             //Map or convert DTO model
@@ -102,8 +102,8 @@ namespace csharpPractice.Controllers
              };
              
             //use domain model to create region
-            dbContext.Regions.Add(regionDomainModel);
-            dbContext.SaveChanges();
+           await dbContext.Regions.AddAsync(regionDomainModel);
+           await dbContext.SaveChangesAsync();
             // map domain mdel back to dto
             var regionDto = new RegionDTO
             {
@@ -118,9 +118,9 @@ namespace csharpPractice.Controllers
             //------Update region PUT method
             [HttpPut]
             [Route("{id:Guid}")]
-            public IActionResult Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
+            public async Task <IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateRegionRequestDto updateRegionRequestDto)
 {
-    var regionDomainModel = dbContext.Regions.FirstOrDefault(x => x.Id == id);
+    var regionDomainModel = await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
     if (regionDomainModel == null)
     {
         return BadRequest("try again");
@@ -129,7 +129,7 @@ namespace csharpPractice.Controllers
     regionDomainModel.Code = updateRegionRequestDto.Code;
     regionDomainModel.Name = updateRegionRequestDto.Name;
     regionDomainModel.RegionImageUrl = updateRegionRequestDto.RegionImageUrl;
-    dbContext.SaveChanges();
+   await dbContext.SaveChangesAsync();
     // Convert Domain model to DTO
     var regionDto = new RegionDTO{
         Id = regionDomainModel.Id,
@@ -143,9 +143,9 @@ namespace csharpPractice.Controllers
 //<-----Delete methos
 [HttpDelete]
 [Route("{id:Guid}")]
-public IActionResult Delete([FromRoute] Guid id)
+public async Task <IActionResult> Delete([FromRoute] Guid id)
 {
-var regionDomainModel= dbContext.Regions.FirstOrDefault(x => x.Id == id);
+var regionDomainModel= await dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
 
 //return deleted region back
 if (regionDomainModel == null)
@@ -153,7 +153,7 @@ return BadRequest("Region not found");
 
 // DElete region
 dbContext.Regions.Remove(regionDomainModel);
-dbContext.SaveChanges();
+await dbContext.SaveChangesAsync();
 //Map dmain model to dto
 var regionDto = new RegionDTO{
         Id = regionDomainModel.Id,
