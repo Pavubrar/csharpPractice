@@ -1,13 +1,23 @@
 ﻿using csharpPractice.Data;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen
+(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "CSharp DevOps Lab API",
+        Version = "v1"
+    });
+});
+;
 
 builder.Services.AddDbContext<WalkDbContext>(options =>
     options.UseSqlServer(
@@ -28,7 +38,12 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI
+(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "CSharp DevOps Lab API v1");
+});
+    ;
 }
 
 // ❌ Do NOT use HTTPS redirection on Azure Linux
